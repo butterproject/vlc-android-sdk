@@ -23,6 +23,8 @@ apply plugin: 'com.github.dcendents.android-maven'
 version = VERSION_NAME
 group = GROUP
 
+def localReleaseDestination = "${buildDir}/release/${version}"
+
 repositories {
     mavenCentral()
 }
@@ -31,11 +33,17 @@ android {
     compileSdkVersion rootProject.ext.compileSdk
     buildToolsVersion rootProject.ext.buildToolsVersion
 
+    publishNonDefault false
+
     defaultConfig {
         minSdkVersion rootProject.ext.minSdk
         targetSdkVersion rootProject.ext.targetSdk
         versionCode 1
         versionName VERSION_NAME
+    }
+
+    lintOptions {
+      abortOnError false
     }
 
     buildTypes {
@@ -51,7 +59,29 @@ dependencies {
     compile "com.android.support:support-annotations:${rootProject.ext.supportAnnotationVersion}"
 }
 
-install {
+task androidSourcesJar(type: Jar) {
+  classifier = 'sources'
+  from android.sourceSets.main.java.srcDirs
+}
+
+task zipRelease(type: Zip) {
+  from localReleaseDestination
+  destinationDir buildDir
+  archiveName "release-${version}.zip"
+}
+
+artifacts {
+  archives androidSourcesJar
+}
+
+task generateRelease(dependsOn: ['uploadArchives', 'zipRelease']) {
+  doLast {
+    println "Release ${version} can be found at ${localReleaseDestination}/"
+    println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
+  }
+}
+
+uploadArchives {
     repositories.mavenInstaller {
         pom.project {
             name VERSION_NAME
@@ -70,11 +100,13 @@ install {
                     distribution 'repo'
                 }
             }
+
             scm {
                 connection SCM_URL
                 url URL
 
             }
+
             developers {
                 developer {
                     name DEVELOPER
@@ -82,22 +114,32 @@ install {
             }
         }
     }
+    repositories.mavenDeployer {
+      repository(url: "file://${localReleaseDestination}")
+    }
 }
 
 bintray {
     user = System.getenv('BINTRAY_USER')
     key =  System.getenv('BINTRAY_KEY')
+
     pkg {
         repo = 'maven'
         name = ARTIFACT
         userOrg = ORGANIZATION
         licenses = ['GPL-3.0']
         vcsUrl = SCM_URL
+        publish = true
         version {
             name = VERSION_NAME
             desc = DESCRIPTION
             released = new Date()
             vcsTag = VERSION_NAME
         }
+    }
+
+    filesSpec {
+      from 'build/outputs/aar'
+      into '.'
     }
 }
