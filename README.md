@@ -13,9 +13,7 @@ Just add this dependency to your project and you're good to go:
 <pre>
 buildscript {
   repositories {
-    maven {
-      url  "http://dl.bintray.com/butter-project/maven" 
-    }
+    jcenter()
   }
 }
 
