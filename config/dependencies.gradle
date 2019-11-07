@@ -1,7 +1,7 @@
 ext {
-    buildToolsVersion = "27.0.3"
     targetSdk = 27
     compileSdk = 27
     minSdk = 16
-    appCompatVersion = '27.1.0'
+    androidxLegacyVersion = '1.0.0'
+    androidxAnnotationVersion = '1.1.0'
 }
