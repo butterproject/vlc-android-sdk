@@ -1,11 +1,11 @@
 --- vlc-android/compile-libvlc.sh	2017-11-03 22:00:00.369247485 +0000
 +++ vlc-android/compile-libvlc-new.sh	2017-11-03 22:00:44.168393922 +0000
-@@ -531,7 +531,7 @@
+@@ -540,7 +540,7 @@
  which autopoint >/dev/null || make $MAKEFLAGS .gettext
  #export the PATH
  # Make
 -make $MAKEFLAGS
 +make $MAKEFLAGS --jobs=4
- checkfail "contribs: make failed"
+ avlc_checkfail "contribs: make failed"
 
  cd ../../
